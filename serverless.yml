@@ -1,0 +1,39 @@
+service: slack-attendance
+frameworkVersion: '3'
+useDotenv: true
+provider:
+  name: aws
+  runtime: nodejs14.x
+  environment:
+    SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
+    SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+functions:
+  attendance:
+    handler: main.attendanceHandler
+    events:
+      - http:
+          path: slack/events
+          method: post
+  slackEventChallenge:
+    handler: main.slackEventChallengeHandler
+    events:
+      - http:
+          path: /
+          method: post
+  health:
+    handler: main.healthHandler
+    events:
+      - http:
+          path: /
+          method: get
+  
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-dotenv-plugin
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true
+    printOutput: true
+    reloadHandler: true
